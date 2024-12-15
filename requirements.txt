@@ -3,4 +3,6 @@ ovos-bus-client
 ovos-workshop
 ovos-plugin-manager
 # Your requirements here
+psutil~=6.0.0
+setuptools~=68.2.0
 

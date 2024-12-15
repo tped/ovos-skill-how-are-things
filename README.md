@@ -1,20 +1,22 @@
-# OVOSSkill
+# OVOS How Are Things Skill
 
-Introductory Skill so that Skill Authors can see how an OVOS Skill is put together
+Perform simple system/network checks 
 
 ## About
 
-Information about your skill
+Simple OVOS Skill runs a few Raspberry PI system commands and reports on heath of the system - initially Temp, CPU load, Disk usage and throttling history.
+
 
 ## Examples
 
-- "Hello world"
-- "How are you?"
-- "Thank you"
+- "How are things"
+- "How are you (doing?)"
+- "How's everything (going)?"
+- "How are you feeling?"
 
 ## Credits
 
-authorName (@githubUsername)
+Tom P (@tped)
 
 ## Category
 
