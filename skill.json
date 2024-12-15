@@ -1,1 +1,55 @@
-{}
+{
+    "title": "",
+    "url": "https://github.com/tped/ovos-skill-how-are-things",
+    "summary": "",
+    "short_description": null,
+    "description": "Simple OVOS Skill runs a few Raspberry PI system commands and reports on heath of the system - initially Temp, CPU load, Disk usage and throttling history.",
+    "examples": [
+        "How are things",
+        "How are you (doing?)",
+        "How's everything (going)?",
+        "How are you feeling?"
+    ],
+    "desktopFile": false,
+    "warning": "",
+    "systemDeps": false,
+    "requirements": {
+        "python": [
+            "ovos-bus-client",
+            "ovos-plugin-manager",
+            "ovos-utils",
+            "ovos-workshop",
+            "psutil~=6.0.0",
+            "setuptools~=68.2.0"
+        ],
+        "system": {},
+        "skill": []
+    },
+    "incompatible_skills": [],
+    "platforms": [
+        "i386",
+        "x86_64",
+        "ia64",
+        "arm64",
+        "arm"
+    ],
+    "branch": "master",
+    "license": "Unknown",
+    "icon": "",
+    "category": "TODO:",
+    "categories": [
+        "TODO:"
+    ],
+    "tags": [
+        "ovos skill"
+    ],
+    "credits": [
+        "Tom",
+        "P",
+        "(@tped)"
+    ],
+    "skillname": "ovos-skill-how-are-things",
+    "authorname": "tped",
+    "foldername": null,
+    "ovos how are things skill": "Perform simple system/network checks"
+}
