@@ -1,7 +1,7 @@
 from ovos_utils import classproperty
-from ovos_utils.log import LOG
+# from ovos_utils.log import LOG
 from ovos_utils.process_utils import RuntimeRequirements
-from ovos_workshop.intents import IntentBuilder
+# from ovos_workshop.intents import IntentBuilder
 from ovos_workshop.decorators import intent_handler
 # from ovos_workshop.intents import IntentHandler # Uncomment to use Adapt intents
 from ovos_workshop.skills import OVOSSkill
@@ -10,32 +10,57 @@ import socket
 import subprocess
 import psutil
 
-# Optional - if you want to populate settings.json with default values, do so here
 DEFAULT_SETTINGS = {
-    "my_name": "Papa",
-    "usage_threshold": 90,
-    "net_testsite": "www.ibm.com",
-    "log_level": "WARNING"
-}
+            "my_name": "Papa",
+            "usage_threshold": 90,
+            "net_testsite": "www.ibm.com",
+            "log_level": "WARNING"
+        }
 
 
 class HowAreThingsSkill(OVOSSkill):
     def __init__(self, *args, bus=None, **kwargs):
         """The __init__ method is called when the Skill is first constructed.
-
         This is a good place to load and pre-process any data needed by your
         Skill, ideally after the super() call.
         """
         super().__init__(*args, bus=bus, **kwargs)
         self.learning = True
 
-        # merge default settings
-        # self.settings is a jsondb, which extends the dict class and adds helpers like merge
-        self.settings.merge(DEFAULT_SETTINGS, new_only=True)
+        # Load settings into variables, using defaults if no setting is found
         self.my_name = self.settings.get("my_name", "default_name")
         self.usage_threshold = self.settings.get("usage_threshold", 90)
         self.net_testsite = self.settings.get("net_testsite", "www.ibm.com")
         self.log_level = self.settings.get("log_level", "INFO")
+
+    @classproperty
+    def runtime_requirements(self):
+        return RuntimeRequirements(
+            internet_before_load=False,
+            network_before_load=False,
+            gui_before_load=False,
+            requires_internet=False,
+            requires_network=False,
+            requires_gui=False,
+            no_internet_fallback=True,
+            no_network_fallback=True,
+            no_gui_fallback=True,
+        )
+
+    def initialize(self):
+        """This Method is called when the Skill is fully initialized."""
+        # Optional - if you want to populate settings.json with default values, do so here
+
+        # Merge default settings
+        # self.settings is a jsondb, which extends the dict class and adds helpers like merge
+        self.settings.merge(DEFAULT_SETTINGS, new_only=True)
+
+        # Define and register Adapt intent IF/WHEN we want to use Adapt
+        # what_are_you_doing_intent = IntentBuilder("WhatAreYouDoingIntent") \
+        #     .require("WhatKeyword") \
+        #     .optionally("DoingKeyword") \
+        #     .build()
+        # self.register_intent(what_are_you_doing_intent, self.handle_what_are_you_doing_intent)
 
     def network_up(self):
         try:
@@ -77,20 +102,6 @@ class HowAreThingsSkill(OVOSSkill):
         except Exception as e:
             print(f"Error checking throttling: {e}")
         return True
-
-    @classproperty
-    def runtime_requirements(self):
-        return RuntimeRequirements(
-            internet_before_load=False,
-            network_before_load=False,
-            gui_before_load=False,
-            requires_internet=False,
-            requires_network=False,
-            requires_gui=False,
-            no_internet_fallback=True,
-            no_network_fallback=True,
-            no_gui_fallback=True,
-        )
 
     @intent_handler("HowAreThings.intent")
     def handle_how_are_things_intent(self, message):
