@@ -154,7 +154,7 @@ class HowAreThingsSkill(OVOSSkill):
 
     @intent_handler("WhoDaMan.intent")
     def handle_who_da_man_intent(self, message):
-        """Handle WhatAreYouDoing.intent and respond with random phrases """
+        """Handle WhoDaMan.intent and respond with random phrases """
         # From WhatAreYouDoing.dialog
         self.speak_dialog("WhoDaMan", {"name": self.my_name})
 
