@@ -19,12 +19,12 @@ DEFAULT_SETTINGS = {
 
 
 class HowAreThingsSkill(OVOSSkill):
-    def __init__(self, *args, bus=None, **kwargs):
+    def __init__(self, *args, **kwargs):
         """The __init__ method is called when the Skill is first constructed.
         This is a good place to load and pre-process any data needed by your
         Skill, ideally after the super() call.
         """
-        super().__init__(*args, bus=bus, **kwargs)
+        super().__init__(*args, **kwargs)
         self.learning = True
 
         # Load settings into variables, using defaults if no setting is found
@@ -87,7 +87,7 @@ class HowAreThingsSkill(OVOSSkill):
         try:
             with open("/sys/class/thermal/thermal_zone0/temp", "r") as f:
                 temp = f.read().strip()
-                return float(temp) / 1000.0  # Convert from millidegrees to degrees
+                return float(temp) / 1000.0  # Convert from milli-degrees to degrees
         except Exception as e:
             print(f"Error getting system temperature: {e}")
             return None
