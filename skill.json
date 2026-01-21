@@ -1,8 +1,4 @@
 {
-    "title": "",
-    "url": "https://github.com/tped/ovos-skill-how-are-things",
-    "summary": "",
-    "short_description": null,
     "description": "Learning Python and OVOS Skill development.  This is a simple OVOS Skill that runs a few Raspberry PI system commands and reports on the heath of the system - initially Temp, CPU load, Disk usage and throttling history. It is also contains a few python/skill development tests (a playland for me) - WHAT:  WhatAreYouDoing (intent & dialog) - WHO DA MAN:  Intent and dialog",
     "examples": [
         "How are things",
@@ -10,21 +6,39 @@
         "How's everything (going)?",
         "How are you feeling?"
     ],
-    "desktopFile": false,
-    "warning": "",
-    "systemDeps": false,
+    "credits": [
+        "Tom Pedersen"
+    ],
+    "categories": [
+        "TODO:"
+    ],
+    "tags": "ovos skill voice assistant",
+    "category": "TODO:",
+    "package_name": "ovos-skill-how-are-things",
+    "pip_spec": "ovos-skill-how-are-things",
+    "license": "# TODO: Add 'license' to .projenrc.json and run pj",
+    "author": "Tom Pedersen",
+    "version": "1.0.1a1",
+    "url": "https://github.com/tped/ovos-skill-how-are-things",
+    "skill_id": "ovos-skill-how-are-things.tped=ovos_skill_how_are_things:HowAreThingsSkill",
+    "skillname": "ovos-skill-how-are-things",
+    "authorname": "tped",
+    "name": "ovos-skill-how-are-things",
+    "title": "ovos-skill-how-are-things",
     "requirements": {
         "python": [
-            "ovos-bus-client",
-            "ovos-plugin-manager",
             "ovos-utils",
+            "ovos-bus-client",
             "ovos-workshop",
-            "psutil~=6.0.0",
-            "setuptools~=68.2.0"
+            "ovos-plugin-manager",
+            "psutil"
         ],
         "system": {},
         "skill": []
     },
+    "desktopFile": false,
+    "warning": "",
+    "systemDeps": false,
     "incompatible_skills": [],
     "platforms": [
         "i386",
@@ -34,22 +48,6 @@
         "arm"
     ],
     "branch": "master",
-    "license": "Unknown",
-    "icon": "",
-    "category": "TODO:",
-    "categories": [
-        "TODO:"
-    ],
-    "tags": [
-        "ovos skill"
-    ],
-    "credits": [
-        "Tom",
-        "P",
-        "(@tped)"
-    ],
-    "skillname": "ovos-skill-how-are-things",
-    "authorname": "tped",
     "foldername": null,
-    "ovos how are things skill": "Perform simple system/network checks"
+    "short_description": null
 }
