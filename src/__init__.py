@@ -10,6 +10,13 @@ import socket
 import subprocess
 import psutil
 
+from .version import (
+    VERSION_MAJOR,
+    VERSION_MINOR,
+    VERSION_BUILD,
+    VERSION_ALPHA
+)
+
 DEFAULT_SETTINGS = {
             "my_name": "Papa",
             "usage_threshold": 90,
@@ -47,6 +54,14 @@ class HowAreThingsSkill(OVOSSkill):
             no_gui_fallback=True,
         )
 
+    @staticmethod
+    def skill_version():
+
+        version_string = f"{VERSION_MAJOR}.{VERSION_MINOR}.{VERSION_BUILD}"
+        if VERSION_ALPHA and int(VERSION_ALPHA) > 0:
+            version_string += f"a{VERSION_ALPHA}"
+        return version_string
+
     def initialize(self):
         """This Method is called when the Skill is fully initialized."""
         # Optional - if you want to populate settings.json with default values, do so here
@@ -55,12 +70,14 @@ class HowAreThingsSkill(OVOSSkill):
         # self.settings is a jsondb, which extends the dict class and adds helpers like merge
         self.settings.merge(DEFAULT_SETTINGS, new_only=True)
 
-        # Define and register Adapt intent IF/WHEN we want to use Adapt
-        # what_are_you_doing_intent = IntentBuilder("WhatAreYouDoingIntent") \
-        #     .require("WhatKeyword") \
-        #     .optionally("DoingKeyword") \
-        #     .build()
-        # self.register_intent(what_are_you_doing_intent, self.handle_what_are_you_doing_intent)
+        # Speak version if log_level != INFO
+        if self.log_level.upper() != "INFO":
+            ver = self.skill_version()
+            spoken_version = ver.replace("a", " alpha ")
+            self.speak(
+                f"How are things skill, version {spoken_version}, initialized",
+                wait=False
+            )
 
     def network_up(self):
         try:
@@ -94,17 +111,24 @@ class HowAreThingsSkill(OVOSSkill):
 
     @classmethod
     def check_throttling(cls):
+        """Return True if the Pi is currently throttled, False otherwise."""
         try:
-            throttled_output = subprocess.check_output(['vcgencmd', 'get_throttled']).decode()
-            if '0x0' in throttled_output:
-                return False
-            return True
+            throttled_output = subprocess.check_output(['vcgencmd', 'get_throttled']).decode().strip()
+            # Extract the hex number after '=' and convert to int
+            throttled_value = int(throttled_output.split('=')[1], 16)
+
+            # Bits 0-2 indicate current throttling (under-voltage, freq capped, throttled)
+            current_throttle = throttled_value & 0b111
+
+            return bool(current_throttle)
+
         except Exception as e:
             print(f"Error checking throttling: {e}")
-        return True
+            # If something went wrong, assume no active throttling
+            return False
 
     @intent_handler("HowAreThings.intent")
-    def handle_how_are_things_intent(self, message):
+    def handle_how_are_things_intent(self):
         """This is a Padatious intent handler.
         It is triggered using a list of sample phrases."""
 
@@ -147,13 +171,13 @@ class HowAreThingsSkill(OVOSSkill):
             self.speak("I've been better", wait=True)
 
     @intent_handler("WhatAreYouDoing.intent")
-    def handle_what_are_you_doing_intent(self, message):
+    def handle_what_are_you_doing_intent(self, _message):
         """Handle WhatAreYouDoing.intent and respond with random phrases """
         # From WhatAreYouDoing.dialog
         self.speak_dialog("WhatAreYouDoing", {"name": self.my_name})
 
     @intent_handler("WhoDaMan.intent")
-    def handle_who_da_man_intent(self, message):
+    def handle_who_da_man_intent(self, _message):
         """Handle WhoDaMan.intent and respond with random phrases """
         # From WhatAreYouDoing.dialog
         self.speak_dialog("WhoDaMan", {"name": self.my_name})
