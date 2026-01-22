@@ -66,9 +66,10 @@ class HowAreThingsSkill(OVOSSkill):
         """This Method is called when the Skill is fully initialized."""
         # Optional - if you want to populate settings.json with default values, do so here
 
-        # Merge default settings
+        # Merge default settings and refresh log_level
         # self.settings is a jsondb, which extends the dict class and adds helpers like merge
         self.settings.merge(DEFAULT_SETTINGS, new_only=True)
+        self.log_level = self.settings.get("log_level", "INFO")
 
         # Speak version if log_level != INFO
         if self.log_level.upper() != "INFO":
