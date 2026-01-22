@@ -71,13 +71,13 @@ class HowAreThingsSkill(OVOSSkill):
         self.settings.merge(DEFAULT_SETTINGS, new_only=True)
 
         # Speak version if log_level != INFO
-        # if self.log_level.upper() != "INFO":
-        ver = self.skill_version()
-        spoken_version = ver.replace("a", " alpha ")
-        self.speak(
-            f"How are things skill, version {spoken_version}, initialized",
-            wait=False
-            )
+        if self.log_level.upper() != "INFO":
+            ver = self.skill_version()
+            spoken_version = ver.replace("a", " alpha ")
+            self.speak(
+                f"How are things skill, version {spoken_version}, initialized",
+                wait=False
+                )
 
     def network_up(self):
         try:
