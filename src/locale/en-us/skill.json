@@ -1,0 +1,14 @@
+{
+  "skill_id": "ovos-skill-how-are-things.tped",
+  "source": "https://github.com/tped/ovos-skill-how-are-things",
+  "name": "How Are Things",
+  "description": "Simple OVOS Skill that checks various Raspberry PI system conditions (cpu, mem, network, etc)",
+  "examples": [
+    "How are things?",
+    "How are you doing?",
+    "How's it going?"
+  ],
+  "tags": [
+    "Status"
+  ]
+}
