@@ -1,5 +1,5 @@
 from ovos_utils import classproperty
-# from ovos_utils.log import LOG
+from ovos_utils.log import LOG
 from ovos_utils.process_utils import RuntimeRequirements
 # from ovos_workshop.intents import IntentBuilder
 from ovos_workshop.decorators import intent_handler
@@ -63,8 +63,11 @@ class HowAreThingsSkill(OVOSSkill):
         return version_string
 
     def initialize(self):
-        """This Method is called when the Skill is fully initialized."""
-        # Optional - if you want to populate settings.json with default values, do so here
+        LOG.debug("initialize() called")
+
+        # noinspection PyUnresolvedReferences
+        self.register_homescreen_example("How are things")
+        # noinspection PyUnresolvedReferences
 
         # Merge default settings and refresh log_level
         # self.settings is a jsondb, which extends the dict class and adds helpers like merge
