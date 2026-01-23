@@ -66,8 +66,7 @@ class HowAreThingsSkill(OVOSSkill):
         LOG.debug("initialize() called")
 
         # noinspection PyUnresolvedReferences
-        self.register_homescreen_example("How are things")
-        # noinspection PyUnresolvedReferences
+        self.gui.register_homescreen_example("How are things")
 
         # Merge default settings and refresh log_level
         # self.settings is a jsondb, which extends the dict class and adds helpers like merge
