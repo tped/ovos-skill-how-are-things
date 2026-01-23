@@ -18,7 +18,7 @@
     "pip_spec": "ovos-skill-how-are-things",
     "license": "# TODO: Add 'license' to .projenrc.json and run pj",
     "author": "Tom Pedersen",
-    "version": "1.0.2a2",
+    "version": "1.0.4a2",
     "url": "https://github.com/tped/ovos-skill-how-are-things",
     "skill_id": "ovos-skill-how-are-things.tped=ovos_skill_how_are_things:HowAreThingsSkill",
     "skillname": "ovos-skill-how-are-things",
