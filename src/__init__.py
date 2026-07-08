@@ -155,16 +155,19 @@ class HowAreThingsSkill(OVOSSkill):
             self._speak("System Utilization seems a tad high ...")
             aok = False
 
-        self._speak("CPU Utilization is " + str(cpu_util) + " percent")
-        self._speak("Memory Utilization is " + str(mem_util) + " percent")
-        self._speak("Disk Utilization is " + str(disk_util) + " percent")
+        self._speak("CPU Utilization is " + str(round(cpu_util)) + " percent")
+        self._speak("Memory Utilization is " + str(round(mem_util)) + " percent")
+        self._speak("Disk Utilization is " + str(round(disk_util)) + " percent")
 
         current_temp = self.get_system_temperature()
-        if self.get_system_temperature() > 70:
+        if current_temp is not None and current_temp > 70:
             self._speak("System Temperature seems a tad high")
             aok = False
 
-        self._speak("System Temperature is " + str(current_temp) + " degrees Celsius")
+        if current_temp is not None:
+            self._speak("System Temperature is " + str(round(current_temp)) + " degrees Celsius")
+        else:
+            self._speak("I couldn't read the system temperature")
 
         if self.check_throttling():
             self._speak("Throttling has occurred since last boot")
