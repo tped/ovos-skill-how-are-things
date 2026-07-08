@@ -128,17 +128,23 @@ class HowAreThingsSkill(OVOSSkill):
             # If something went wrong, assume no active throttling
             return False
 
+    def _speak(self, utterance, wait=False, expect_response=False):
+        """Wrapper around self.speak that also logs to skill log at DEBUG level."""
+        if self.log_level.upper() == "DEBUG":
+            LOG.debug(f"[HowAreThings SPEAK] {utterance}")
+        self.speak(utterance, wait=wait, expect_response=expect_response)
+
     @intent_handler("HowAreThings.intent")
     def handle_how_are_things_intent(self):
         """This is a Padatious intent handler.
         It is triggered using a list of sample phrases."""
 
         aok = True
-        self.speak("I am checking a few things")
+        self._speak("I am checking a few things")
         if self.network_up():
-            self.speak("Network looks good!")
+            self._speak("Network looks good!")
         else:
-            self.speak("I don't seem to have network connectivity")
+            self._speak("I don't seem to have network connectivity")
             aok = False
 
         cpu_util = self.get_cpu_utilization()
@@ -146,30 +152,30 @@ class HowAreThingsSkill(OVOSSkill):
         disk_util = self.get_disk_utilization()
 
         if cpu_util > self.usage_threshold or mem_util > self.usage_threshold or disk_util > self.usage_threshold:
-            self.speak("System Utilization seems a tad high ...")
+            self._speak("System Utilization seems a tad high ...")
             aok = False
 
-        self.speak("CPU Utilization is " + str(cpu_util) + " percent")
-        self.speak("Memory Utilization is " + str(mem_util) + " percent")
-        self.speak("Disk Utilization is " + str(disk_util) + " percent")
+        self._speak("CPU Utilization is " + str(cpu_util) + " percent")
+        self._speak("Memory Utilization is " + str(mem_util) + " percent")
+        self._speak("Disk Utilization is " + str(disk_util) + " percent")
 
         current_temp = self.get_system_temperature()
         if self.get_system_temperature() > 70:
-            self.speak("System Temperature seems a tad high")
+            self._speak("System Temperature seems a tad high")
             aok = False
 
-        self.speak("System Temperature is " + str(current_temp) + " degrees Celsius")
+        self._speak("System Temperature is " + str(current_temp) + " degrees Celsius")
 
         if self.check_throttling():
-            self.speak("Throttling has occurred since last boot")
+            self._speak("Throttling has occurred since last boot")
             aok = False
         else:
-            self.speak("No sign of throttling, that's good!", wait=True)
+            self._speak("No sign of throttling, that's good!", wait=True)
 
         if aok:
-            self.speak("I'm doing GREAT!", wait=True)
+            self._speak("I'm doing GREAT!", wait=True)
         else:
-            self.speak("I've been better", wait=True)
+            self._speak("I've been better", wait=True)
 
     @intent_handler("WhatAreYouDoing.intent")
     def handle_what_are_you_doing_intent(self, _message):
