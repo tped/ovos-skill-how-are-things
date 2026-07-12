@@ -186,6 +186,12 @@ class HowAreThingsSkill(OVOSSkill):
         # From WhatAreYouDoing.dialog
         self.speak_dialog("WhatAreYouDoing", {"name": self.my_name})
 
+    @intent_handler("AreYouThere.intent")
+    def handle_are_you_there_intent(self, _message):
+        """Handle AreYouThere.intent and respond with random phrases """
+        # From AreYouThere.dialog
+        self.speak_dialog("AreYouThere", {"name": self.my_name})
+
     @intent_handler("WhoDaMan.intent")
     def handle_who_da_man_intent(self, _message):
         """Handle WhoDaMan.intent and respond with random phrases """
