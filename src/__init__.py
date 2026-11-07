@@ -14,31 +14,31 @@ from .version import (
     VERSION_MAJOR,
     VERSION_MINOR,
     VERSION_BUILD,
-    VERSION_ALPHA
+    VERSION_ALPHA,
+    VERSION_TAG
 )
 
 DEFAULT_SETTINGS = {
             "my_name": "Papa",
             "usage_threshold": 90,
             "net_testsite": "www.ibm.com",
-            "log_level": "WARNING"
+            "log_level": "DEBUG"
         }
-
 
 class HowAreThingsSkill(OVOSSkill):
     def __init__(self, *args, **kwargs):
-        """The __init__ method is called when the Skill is first constructed.
-        This is a good place to load and pre-process any data needed by your
-        Skill, ideally after the super() call.
+        """Construct the skill. Settings are (re)loaded again in initialize()
+        after the defaults have been merged into the settings file.
         """
         super().__init__(*args, **kwargs)
-        self.learning = True
+        self._load_settings()
 
-        # Load settings into variables, using defaults if no setting is found
-        self.my_name = self.settings.get("my_name", "default_name")
-        self.usage_threshold = self.settings.get("usage_threshold", 90)
-        self.net_testsite = self.settings.get("net_testsite", "www.ibm.com")
-        self.log_level = self.settings.get("log_level", "INFO")
+    def _load_settings(self):
+        """Load settings into attributes, falling back to DEFAULT_SETTINGS."""
+        self.my_name = self.settings.get("my_name", DEFAULT_SETTINGS["my_name"])
+        self.usage_threshold = self.settings.get("usage_threshold", DEFAULT_SETTINGS["usage_threshold"])
+        self.net_testsite = self.settings.get("net_testsite", DEFAULT_SETTINGS["net_testsite"])
+        self.log_level = self.settings.get("log_level", DEFAULT_SETTINGS["log_level"])
 
     @classproperty
     def runtime_requirements(self):
@@ -56,7 +56,6 @@ class HowAreThingsSkill(OVOSSkill):
 
     @staticmethod
     def skill_version():
-
         version_string = f"{VERSION_MAJOR}.{VERSION_MINOR}.{VERSION_BUILD}"
         if VERSION_ALPHA and int(VERSION_ALPHA) > 0:
             version_string += f"a{VERSION_ALPHA}"
@@ -65,25 +64,27 @@ class HowAreThingsSkill(OVOSSkill):
     def initialize(self):
         LOG.debug("initialize() called")
 
-        # Double check to ensure this thing gets committed!!
-        # Merge default settings and refresh log_level
-        # self.settings is a jsondb, which extends the dict class and adds helpers like merge
+        # self.settings is a jsondb, which extends dict and adds helpers like merge.
+        # new_only=True never overwrites values already stored in settings.json.
         self.settings.merge(DEFAULT_SETTINGS, new_only=True)
-        self.log_level = self.settings.get("log_level", "INFO")
+        self._load_settings()
 
-        # Speak version if log_level != INFO
-        if self.log_level.upper() != "INFO":
-            ver = self.skill_version()
-            spoken_version = ver.replace("a", " alpha ")
-            self.speak(
-                f"How are things skill, version {spoken_version}, initialized",
-                wait=False
-                )
+        # Announce version and tag only when skill-level debug is on
+        if self.log_level.upper() == "DEBUG":
+            self._announce_version()
+
+    def _announce_version(self):
+        spoken_version = self.skill_version().replace(".", " point ").replace("a", " alpha ")
+        self.speak(
+            f"How are things skill, version {spoken_version}, {VERSION_TAG}, initialized",
+            wait=False
+        )
 
     def network_up(self):
         try:
-            socket.create_connection((self.net_testsite, 80))
-            return True
+            # timeout so a dead network can't hang the handler; "with" closes the socket
+            with socket.create_connection((self.net_testsite, 80), timeout=3):
+                return True
         except OSError:
             return False
 
@@ -105,28 +106,28 @@ class HowAreThingsSkill(OVOSSkill):
         try:
             with open("/sys/class/thermal/thermal_zone0/temp", "r") as f:
                 temp = f.read().strip()
-                return float(temp) / 1000.0  # Convert from milli-degrees to degrees
+                return float(temp) / 1000.0  # milli-degrees to degrees
         except Exception as e:
-            print(f"Error getting system temperature: {e}")
+            LOG.warning(f"Error getting system temperature: {e}")
             return None
 
     @classmethod
     def check_throttling(cls):
-        """Return True if the Pi is currently throttled, False otherwise."""
+        """Return (throttled_now, throttled_since_boot), or None if it can't be read."""
         try:
             throttled_output = subprocess.check_output(['vcgencmd', 'get_throttled']).decode().strip()
-            # Extract the hex number after '=' and convert to int
             throttled_value = int(throttled_output.split('=')[1], 16)
 
-            # Bits 0-2 indicate current throttling (under-voltage, freq capped, throttled)
-            current_throttle = throttled_value & 0b111
+            # Bits 0-2: under-voltage / freq capped / throttled, right now
+            throttled_now = bool(throttled_value & 0b111)
+            # Bits 16-18: the same three conditions, have occurred since boot
+            throttled_since_boot = bool((throttled_value >> 16) & 0b111)
 
-            return bool(current_throttle)
+            return throttled_now, throttled_since_boot
 
         except Exception as e:
-            print(f"Error checking throttling: {e}")
-            # If something went wrong, assume no active throttling
-            return False
+            LOG.warning(f"Error checking throttling: {e}")
+            return None
 
     def _speak(self, utterance, wait=False, expect_response=False):
         """Wrapper around self.speak that also logs to skill log at DEBUG level."""
@@ -169,11 +170,19 @@ class HowAreThingsSkill(OVOSSkill):
         else:
             self._speak("I couldn't read the system temperature")
 
-        if self.check_throttling():
-            self._speak("Throttling has occurred since last boot")
-            aok = False
+        throttle = self.check_throttling()
+        if throttle is None:
+            self._speak("I couldn't check for throttling")
         else:
-            self._speak("No sign of throttling, that's good!", wait=True)
+            throttled_now, throttled_since_boot = throttle
+            if throttled_now:
+                self._speak("The system is being throttled right now")
+                aok = False
+            elif throttled_since_boot:
+                self._speak("Throttling has occurred since last boot")
+                aok = False
+            else:
+                self._speak("No sign of throttling, that's good!")
 
         if aok:
             self._speak("I'm doing GREAT!", wait=True)
@@ -195,7 +204,7 @@ class HowAreThingsSkill(OVOSSkill):
     @intent_handler("WhoDaMan.intent")
     def handle_who_da_man_intent(self, _message):
         """Handle WhoDaMan.intent and respond with random phrases """
-        # From WhatAreYouDoing.dialog
+        # From WhoDaMan.dialog
         self.speak_dialog("WhoDaMan", {"name": self.my_name})
 
     def stop(self):
